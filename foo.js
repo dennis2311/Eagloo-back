@@ -1,16 +1,3 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
-const secretGenerator = require("./secretGenerator");
+const sendMail = require("./sendMail");
 
-async function foo(email) {
-    const user = await prisma.user.findUnique({
-        where: { email },
-    });
-    if (user) {
-        console.log(user);
-    } else {
-        console.log("유저가 없습니다");
-    }
-}
-
-foo("denni");
+sendMail("dennis2311@daum.net", "화려한 물통");
