@@ -20,12 +20,9 @@ TODO
 */
 
 router.get("/alluser", async (req, res) => {
-    const newSecret = secretGenerator();
-    console.log(newSecret);
     const users = await prisma.user.findMany({
         where: { banned: false },
     });
-    res.header("Access-Control-Allow-Origin", "*");
     res.json(users);
 });
 
