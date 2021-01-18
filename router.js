@@ -3,8 +3,8 @@ const prisma = new PrismaClient();
 const express = require("express");
 const router = express.Router();
 
-const sendMail = require("./sendMail");
-const secretGenerator = require("./secretGenerator");
+const sendMail = require("./util/sendMail");
+const secretGenerator = require("./util/secretGenerator");
 
 /*
 TODO
@@ -160,7 +160,33 @@ router.put("/user/:email/:givenPassword", async (req, res) => {
 
 // 스케쥴 불러오기
 router.get("/schedule/:email", async (req, res) => {
-    console.log("");
+    const email = req.params.email;
+    const response = { success: false, message: "" };
+
+    try {
+        const userWithSchedules = await prisma.user.findUnique({
+            where: {
+                email,
+            },
+            include: {
+                schedules: {
+                    orderBy: {
+                        state: "asc",
+                    },
+                    select: {
+                        id: true,
+                        content: true,
+                        state: true,
+                    },
+                },
+            },
+        });
+        response.schedules = userWithSchedules.schedules;
+        res.json(response);
+    } catch (err) {
+        response.message = "서버 오류입니다. 잠시 후 다시 시도해 주세요";
+        res.json(response);
+    }
 });
 
 // 스케쥴 관리(추가)

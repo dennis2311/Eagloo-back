@@ -26,7 +26,14 @@ model Schedule{
   user User @relation(fields: [userId], references:[id])
   userId String
   content String
-  progress Int @default(0)
+  state Int @default(0)
+  // progress Progress @default(SCRATCH)
+}
+
+enum Progress{
+  SCRATCH
+  ONGOING
+  DONE
 }
 
 model Class{

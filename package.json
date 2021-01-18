@@ -17,6 +17,6 @@
         "socket.io": "^2.3.0"
     },
     "devDependencies": {
-        "@prisma/cli": "^2.13.1"
+        "@prisma/cli": "^2.14.0"
     }
 }
