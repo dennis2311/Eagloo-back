@@ -18,7 +18,7 @@ function html(secret) {
 }
 
 const sendMail = async (to, secret) => {
-    const googleTransport = await nodemailer.createTransport({
+    const googleTransport = nodemailer.createTransport({
         service: "gmail",
         auth: {
             type: "OAuth2",
@@ -37,12 +37,8 @@ const sendMail = async (to, secret) => {
         html: html(secret),
     };
 
-    try {
-        await googleTransport.sendMail(mailOptions);
-        googleTransport.close();
-    } catch (err) {
-        console.log(err);
-    }
+    await googleTransport.sendMail(mailOptions);
+    googleTransport.close();
 };
 
 module.exports = sendMail;

@@ -81,7 +81,11 @@ router.post("/user/:email", async (req, res) => {
                 });
                 // TODO
                 // 메일 발송 성공 여부에 따라 가지치기 해야함
-                sendMail(`${email}@yonsei.ac.kr`, secret);
+                sendMail(`${email}@yonsei.ac.kr`, secret).catch((err) => {
+                    console.log(err);
+                    response.message = "메일 발송 중 오류가 발생했습니다";
+                    res.json(response);
+                });
                 response.success = true;
                 response.message = `인증 메일이 ${email}@yonsei.ac.kr 로 발송되었습니다`;
             }
@@ -94,7 +98,11 @@ router.post("/user/:email", async (req, res) => {
             });
             // TODO
             // 메일 발송 성공 여부에 따라 가지치기 해야함
-            sendMail(`${email}@yonsei.ac.kr`, secret);
+            sendMail(`${email}@yonsei.ac.kr`, secret).catch((err) => {
+                console.log(err);
+                response.message = "메일 발송 중 오류가 발생했습니다";
+                res.json(response);
+            });
             response.success = true;
             response.message = `인증 메일이 ${email}@yonsei.ac.kr 로 발송되었습니다`;
         }
