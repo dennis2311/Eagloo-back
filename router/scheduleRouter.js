@@ -89,8 +89,8 @@ scheduleRouter.put("/", async (req, res) => {
 });
 
 // 스케쥴 삭제
-scheduleRouter.delete("/", async (req, res) => {
-    const scheduleId = req.body.scheduleId;
+scheduleRouter.delete("/:scheduleId", async (req, res) => {
+    const scheduleId = req.params.scheduleId;
     const response = { success: false, message: "" };
 
     try {
