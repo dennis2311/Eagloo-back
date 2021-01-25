@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const app = express();
+app.use(express.json()); // body-parser
 
 const http = require("http");
 const server = http.createServer(app);
@@ -21,8 +22,10 @@ app.use(function (req, res, next) {
     next();
 });
 
-const router = require("./router");
-app.use("/api", router);
+const userRouter = require("./router/userRouter");
+const scheduleRouter = require("./router/scheduleRouter");
+app.use("/api/user", userRouter);
+app.use("/api/schedule", scheduleRouter);
 
 const users = {};
 const rooms = {

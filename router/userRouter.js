@@ -1,33 +1,13 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const express = require("express");
-const router = express.Router();
+const userRouter = express.Router();
 
-const sendMail = require("./util/sendMail");
-const secretGenerator = require("./util/secretGenerator");
-
-/*
-TODO
- - CORS 일괄 세팅
- - 로그인 (email pw 비교)
- - 회원가입1 (계정 생성 + secret 생성)
- - 회원가입1.5 (secret 재생성)
- - 회원가입2 (secret 비교)
- - 스케쥴 불러오기
- - 스케쥴 관리(추가)
- - 스케쥴 관리(변경)
- - 스케쥴 관리(삭제)
-*/
-
-router.get("/alluser", async (req, res) => {
-    const users = await prisma.user.findMany({
-        where: { banned: false },
-    });
-    res.json(users);
-});
+const sendMail = require("../util/sendMail");
+const secretGenerator = require("../util/secretGenerator");
 
 // 로그인 (api 원칙이 회원가입 2단계랑 충돌하는 중)
-router.get("/auth/:email/:password", async (req, res) => {
+userRouter.get("/:email/:password", async (req, res) => {
     const email = req.params.email;
     const password = req.params.password;
     const response = { success: false, message: "" };
@@ -62,8 +42,8 @@ router.get("/auth/:email/:password", async (req, res) => {
 });
 
 // 회원가입1단계 (nodemailer)
-router.post("/user/:email", async (req, res) => {
-    const email = req.params.email;
+userRouter.post("/", async (req, res) => {
+    const email = req.body.email;
     const secret = secretGenerator();
     const response = { success: false, message: "" };
 
@@ -79,8 +59,6 @@ router.post("/user/:email", async (req, res) => {
                     where: { email },
                     data: { verificationSecret: secret },
                 });
-                // TODO
-                // 메일 발송 성공 여부에 따라 가지치기 해야함
                 sendMail(`${email}@yonsei.ac.kr`, secret).catch((err) => {
                     console.log(err);
                     response.message = "메일 발송 중 오류가 발생했습니다";
@@ -96,8 +74,6 @@ router.post("/user/:email", async (req, res) => {
                     verificationSecret: secret,
                 },
             });
-            // TODO
-            // 메일 발송 성공 여부에 따라 가지치기 해야함
             sendMail(`${email}@yonsei.ac.kr`, secret).catch((err) => {
                 console.log(err);
                 response.message = "메일 발송 중 오류가 발생했습니다";
@@ -115,9 +91,9 @@ router.post("/user/:email", async (req, res) => {
 });
 
 // 회원가입2단계 (secret 비교)
-router.get("/user/:email/:givenSecret", async (req, res) => {
-    const email = req.params.email;
-    const givenSecret = req.params.givenSecret;
+userRouter.put("/secret", async (req, res) => {
+    const email = req.body.email;
+    const givenSecret = req.body.givenSecret;
     const response = { success: false, message: "" };
 
     try {
@@ -147,9 +123,9 @@ router.get("/user/:email/:givenSecret", async (req, res) => {
 });
 
 // 회원가입3단계 (비밀번호 설정)
-router.put("/user/:email/:givenPassword", async (req, res) => {
-    const email = req.params.email;
-    const givenPassword = req.params.givenPassword;
+userRouter.put("/password", async (req, res) => {
+    const email = req.body.email;
+    const givenPassword = req.body.givenPassword;
     const response = { success: false, message: "" };
 
     try {
@@ -166,50 +142,4 @@ router.put("/user/:email/:givenPassword", async (req, res) => {
     }
 });
 
-// 스케쥴 불러오기
-router.get("/schedule/:email", async (req, res) => {
-    const email = req.params.email;
-    const response = { success: false, message: "" };
-
-    try {
-        const userWithSchedules = await prisma.user.findUnique({
-            where: {
-                email,
-            },
-            include: {
-                schedules: {
-                    orderBy: {
-                        state: "asc",
-                    },
-                    select: {
-                        id: true,
-                        content: true,
-                        state: true,
-                    },
-                },
-            },
-        });
-        response.schedules = userWithSchedules.schedules;
-        res.json(response);
-    } catch (err) {
-        response.message = "서버 오류입니다. 잠시 후 다시 시도해 주세요";
-        res.json(response);
-    }
-});
-
-// 스케쥴 관리(추가)
-router.post("/schedule/:email/:content", async (req, res) => {
-    console.log("");
-});
-
-// 스케쥴 관리(변경)
-router.put("/schedule", async (req, res) => {
-    console.log("");
-});
-
-// 스케쥴 관리(삭제)
-router.delete("/schedule", async (req, res) => {
-    console.log("");
-});
-
-module.exports = router;
+module.exports = userRouter;
