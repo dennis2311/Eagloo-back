@@ -16,7 +16,7 @@ scheduleRouter.get("/:email", async (req, res) => {
             include: {
                 schedules: {
                     orderBy: {
-                        state: "asc",
+                        state: "desc",
                     },
                     select: {
                         id: true,
@@ -50,6 +50,11 @@ scheduleRouter.post("/", async (req, res) => {
                         email,
                     },
                 },
+            },
+            select: {
+                id: true,
+                content: true,
+                state: true,
             },
         });
         response.success = true;

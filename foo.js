@@ -12,6 +12,11 @@ async function addSchedule(email, content) {
                     },
                 },
             },
+            select: {
+                id: true,
+                content: true,
+                state: true,
+            },
         });
         console.dir(schedule);
     } catch (err) {
