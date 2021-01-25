@@ -1,9 +1,9 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-async function addSchedule(content, email) {
+async function addSchedule(email, content) {
     try {
-        await prisma.schedule.create({
+        const schedule = await prisma.schedule.create({
             data: {
                 content,
                 user: {
@@ -13,6 +13,7 @@ async function addSchedule(content, email) {
                 },
             },
         });
+        console.dir(schedule);
     } catch (err) {
         console.log(err);
     }
@@ -71,12 +72,4 @@ async function deleteSchedule(id) {
     }
 }
 
-// addSchedule("밥 먹기", "dennis2311");
-// addSchedule("잠 자기", "dennis2311");
-// addSchedule("일어나기", "dennis2311");
-// deleteSchedule("0d6c35f3-baf4-4062-b955-30ae87ad7c7b");
-changeSchedule("5a53a2cf-0da7-46e2-a9ac-604415bf4da1", "푹 자기", 2).then(
-    () => {
-        callSchedule("dennis2311");
-    }
-);
+addSchedule("dennis2311", "건의 게시판 만들기");

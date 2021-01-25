@@ -42,7 +42,7 @@ scheduleRouter.post("/", async (req, res) => {
     const response = { success: false, message: "" };
 
     try {
-        await prisma.schedule.create({
+        const schedule = await prisma.schedule.create({
             data: {
                 content,
                 user: {
@@ -52,6 +52,9 @@ scheduleRouter.post("/", async (req, res) => {
                 },
             },
         });
+        response.success = true;
+        response.schedule = schedule;
+        res.json(response);
     } catch (err) {
         console.log(err);
         response.message = "서버 오류입니다. 잠시 후 다시 시도해 주세요";
