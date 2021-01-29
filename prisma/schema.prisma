@@ -54,6 +54,7 @@ model Mainthread{
   college College
   subject String
   content String
+  subthreads Subthread[]
   createdAt DateTime @default(now())
 }
 
@@ -61,13 +62,15 @@ model Subthread{
   id String @id @default(uuid())
   user User @relation(fields: [userId], references:[id])
   userId String
-  index String
+  mainthread Mainthread @relation(fields: [mainthreadId], references:[id])
+  mainthreadId String
   content String
   createdAt DateTime @default(now())
 }
 
 enum College{
   Undefined
+  General
   Liberal_Arts
   Commerce_and_Economics
   Business
