@@ -1,42 +1,23 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-async function addSchedule(email, content) {
+async function addFeedback(email, content) {
     try {
-        const schedule = await prisma.schedule.create({
+        const feedback = await prisma.feedback.create({
             data: {
                 content,
-                user: {
-                    connect: {
-                        email,
-                    },
-                },
+                user: email,
             },
             select: {
                 id: true,
+                user: true,
                 content: true,
-                state: true,
+                createdAt: true,
             },
         });
-        console.dir(schedule);
+        console.dir(feedback);
     } catch (err) {
         console.log(err);
-    }
-}
-
-async function changeSchedule(id, content, state) {
-    try {
-        await prisma.schedule.update({
-            where: {
-                id,
-            },
-            data: {
-                content,
-                state,
-            },
-        });
-    } catch (err) {
-        console.error(err);
     }
 }
 
@@ -49,12 +30,13 @@ async function callSchedule(email) {
             include: {
                 schedules: {
                     orderBy: {
-                        state: "asc",
+                        createdAt: "desc",
                     },
                     select: {
                         id: true,
                         content: true,
-                        state: true,
+                        progress: true,
+                        createdAt: true,
                     },
                 },
             },
@@ -65,16 +47,4 @@ async function callSchedule(email) {
     }
 }
 
-async function deleteSchedule(id) {
-    try {
-        await prisma.schedule.delete({
-            where: {
-                id,
-            },
-        });
-    } catch (err) {
-        console.err(err);
-    }
-}
-
-addSchedule("dennis2311", "건의 게시판 만들기");
+callSchedule("dennis2311");

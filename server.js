@@ -24,32 +24,29 @@ app.use(function (req, res, next) {
 
 const userRouter = require("./router/userRouter");
 const scheduleRouter = require("./router/scheduleRouter");
+const threadRouter = require("./router/threadRouter");
+const feedbackRouter = require("./router/feedbackRouter");
 app.use("/api/user", userRouter);
 app.use("/api/schedule", scheduleRouter);
+app.use("/api/thread", threadRouter);
+app.use("/api/feedback", feedbackRouter);
 
-const users = {};
-const rooms = {
-    a: [],
-    b: [],
-    business: [],
-    engineer: [],
-    underwood: [],
-    socsci: [],
-};
+const userToRoom = {};
+const roomToUser = { 1: [], 2: [], 3: [], 4: [], 5: [] };
 
 io.on("connection", (socket) => {
     var message = "";
     socket.on("join", (roomNo) => {
-        if (!rooms[roomNo]) {
+        if (!(0 < parseInt(roomNo) < 6)) {
             message = "잘못된 접근입니다";
             socket.emit("reject", message);
-        } else if (rooms[roomNo].length >= 6) {
+        } else if (roomToUser[roomNo].length >= 6) {
             message = "방이 다 찼습니다. 다른 방을 이용해 주세요";
             socket.emit("reject", message);
         } else {
-            socket.emit("accept", rooms[roomNo]);
-            rooms[roomNo].push(socket.id);
-            users[socket.id] = roomNo;
+            socket.emit("accept", roomToUser[roomNo]);
+            roomToUser[roomNo].push(socket.id);
+            userToRoom[socket.id] = roomNo;
         }
     });
 
@@ -70,12 +67,12 @@ io.on("connection", (socket) => {
     });
 
     socket.on("disconnect", () => {
-        let roomNo = users[socket.id];
+        let roomNo = userToRoom[socket.id];
         if (roomNo) {
-            let index = rooms[roomNo].indexOf(socket.id);
-            rooms[roomNo].splice(index, 1);
-            delete users[socket.id];
-            rooms[roomNo].forEach((user) => {
+            let index = roomToUser[roomNo].indexOf(socket.id);
+            roomToUser[roomNo].splice(index, 1);
+            delete userToRoom[socket.id];
+            roomToUser[roomNo].forEach((user) => {
                 io.to(user).emit("peer quit", socket.id);
             });
         }

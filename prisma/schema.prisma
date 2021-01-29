@@ -1,3 +1,5 @@
+// npx prisma migrate dev --preview-feature
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -26,8 +28,8 @@ model Schedule{
   user User @relation(fields: [userId], references:[id])
   userId String
   content String
-  state Int @default(0)
-  // progress Progress @default(SCRATCH)
+  progress Progress @default(SCRATCH)
+  createdAt DateTime @default(now())
 }
 
 enum Progress{
@@ -40,16 +42,17 @@ model Class{
   id String @id @default(uuid())
   name String
   code String
-  mainthreads Mainthread[]
+  // mainthreads Mainthread[]
 }
 
 model Mainthread{
   id String @id @default(uuid())
   user User @relation(fields: [userId], references:[id])
   userId String
-  class Class @relation(fields: [classId], references:[id])
-  classId String
-  title String
+  // class Class @relation(fields: [classId], references:[id])
+  // classId String
+  college College
+  subject String
   content String
   createdAt DateTime @default(now())
 }
@@ -59,6 +62,43 @@ model Subthread{
   user User @relation(fields: [userId], references:[id])
   userId String
   index String
+  content String
+  createdAt DateTime @default(now())
+}
+
+enum College{
+  Undefined
+  Liberal_Arts
+  Commerce_and_Economics
+  Business
+  Science
+  Engineering
+  Life_Science_and_Biotechnology
+  Theology
+  Social_Sciences
+  Law
+  Music
+  Human_Ecology
+  Educational_Science
+  University_College
+  Underwood_International_College
+  Global_Leadership_Division
+  Medicine
+  Dentistry
+  Nursing
+  Pharmacy
+}
+
+model Feedback{
+  id String @id @default(uuid())
+  user String
+  category String @default("overview")
+  content String
+  createdAt DateTime @default(now())
+}
+
+model Notice{
+  id String @id @default(uuid())
   content String
   createdAt DateTime @default(now())
 }

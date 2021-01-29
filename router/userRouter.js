@@ -6,7 +6,7 @@ const userRouter = express.Router();
 const sendMail = require("../util/sendMail");
 const secretGenerator = require("../util/secretGenerator");
 
-// 로그인 (api 원칙이 회원가입 2단계랑 충돌하는 중)
+// 로그인
 userRouter.get("/:email/:password", async (req, res) => {
     const email = req.params.email;
     const password = req.params.password;

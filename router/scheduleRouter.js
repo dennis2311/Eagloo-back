@@ -16,12 +16,12 @@ scheduleRouter.get("/:email", async (req, res) => {
             include: {
                 schedules: {
                     orderBy: {
-                        state: "desc",
+                        createdAt: "desc",
                     },
                     select: {
                         id: true,
                         content: true,
-                        state: true,
+                        progress: true,
                     },
                 },
             },
@@ -54,7 +54,7 @@ scheduleRouter.post("/", async (req, res) => {
             select: {
                 id: true,
                 content: true,
-                state: true,
+                progress: true,
             },
         });
         response.success = true;
@@ -71,7 +71,7 @@ scheduleRouter.post("/", async (req, res) => {
 scheduleRouter.put("/", async (req, res) => {
     const scheduleId = req.body.scheduleId;
     const content = req.body.content;
-    const state = parseInt(req.body.state);
+    const progress = req.body.progress;
     const response = { success: false, message: "" };
 
     try {
@@ -81,7 +81,7 @@ scheduleRouter.put("/", async (req, res) => {
             },
             data: {
                 content,
-                state,
+                progress,
             },
         });
         response.success = true;
