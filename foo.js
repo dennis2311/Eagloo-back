@@ -44,61 +44,54 @@ async function addSubthread(email, mainthreadId, content) {
     }
 }
 
-async function callThread(college) {
+async function callThread(college, pageNo) {
     try {
-        if (college === "Undefined") {
-            const allThreads = await prisma.mainthread.findMany({
-                include: {
-                    user: {
-                        select: {
-                            email: true,
-                        },
-                    },
-                    subthreads: {
-                        orderBy: {
-                            createdAt: "asc",
-                        },
-                        select: {
-                            user: {
-                                select: {
-                                    email: true,
-                                },
-                            },
-                            content: true,
-                            createdAt: true,
-                        },
+        const selectedThreads = await prisma.mainthread.findMany({
+            skip: 10 * (pageNo - 1),
+            take: 10,
+            where: {
+                college,
+            },
+            include: {
+                user: {
+                    select: {
+                        email: true,
                     },
                 },
-            });
-            console.dir(allThreads);
+                subthreads: {
+                    orderBy: {
+                        createdAt: "asc",
+                    },
+                    select: {
+                        user: {
+                            select: {
+                                email: true,
+                            },
+                        },
+                        content: true,
+                        createdAt: true,
+                    },
+                },
+            },
+        });
+        console.dir(selectedThreads);
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+async function threadNum(college) {
+    try {
+        if (college === "All") {
+            const threadNums = await prisma.mainthread.count();
+            console.log(`total mainthreads : ${threadNums}`);
         } else {
-            const selectedThreads = await prisma.mainthread.findMany({
+            const threadNums = await prisma.mainthread.count({
                 where: {
                     college,
                 },
-                include: {
-                    user: {
-                        select: {
-                            email: true,
-                        },
-                    },
-                    subthreads: {
-                        orderBy: {
-                            createdAt: "asc",
-                        },
-                        select: {
-                            user: {
-                                select: {
-                                    email: true,
-                                },
-                            },
-                            content: true,
-                            createdAt: true,
-                        },
-                    },
-                },
             });
-            console.dir(selectedThreads);
+            console.log(`total mainthreads of ${college} : ${threadNums}`);
         }
     } catch (err) {
         console.log(err);
@@ -120,4 +113,4 @@ async function callThread(college) {
 //     callThread("Undefined");
 // });
 
-callThread("Music");
+callThread("Music", 2);

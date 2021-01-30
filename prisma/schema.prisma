@@ -69,7 +69,6 @@ model Subthread{
 }
 
 enum College{
-  Undefined
   General
   Liberal_Arts
   Commerce_and_Economics

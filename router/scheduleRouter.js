@@ -16,7 +16,7 @@ scheduleRouter.get("/:email", async (req, res) => {
             include: {
                 schedules: {
                     orderBy: {
-                        createdAt: "desc",
+                        createdAt: "asc",
                     },
                     select: {
                         id: true,

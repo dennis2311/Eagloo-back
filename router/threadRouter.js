@@ -3,63 +3,52 @@ const prisma = new PrismaClient();
 const express = require("express");
 const threadRouter = express.Router();
 
-threadRouter.get("/:college", async (req, res) => {
-    const college = req.params.college;
+// 전체 메인스레드 수 반환
+threadRouter.get("/all/totalThreads", async (req, res) => {
     const response = { success: false, message: "" };
 
     try {
-        if (college === "Undefined") {
-            response.threads = await prisma.mainthread.findMany({
-                include: {
-                    user: {
-                        select: {
-                            email: true,
-                        },
+        response.totalThreads = await prisma.mainthread.count();
+        reponse.success = true;
+        res.json(response);
+    } catch (err) {
+        console.log(err);
+        response.message = "서버 오류입니다. 잠시 후 다시 시도해 주세요";
+        res.json(response);
+    }
+});
+
+// n번째 페이지 메인/서브스레드 반환
+threadRouter.get("/all/:pageNo", async (req, res) => {
+    const pageNo = parseInt(req.params.pageNo);
+    const response = { success: false, message: "" };
+
+    try {
+        response.threads = await prisma.mainthread.findMany({
+            skip: 10 * (pageNo - 1),
+            take: 10,
+            include: {
+                user: {
+                    select: {
+                        email: true,
                     },
-                    subthreads: {
-                        orderBy: {
-                            createdAt: "asc",
-                        },
-                        select: {
-                            user: {
-                                select: {
-                                    email: true,
-                                },
+                },
+                subthreads: {
+                    orderBy: {
+                        createdAt: "asc",
+                    },
+                    select: {
+                        user: {
+                            select: {
+                                email: true,
                             },
-                            content: true,
-                            createdAt: true,
                         },
+                        content: true,
+                        createdAt: true,
                     },
                 },
-            });
-        } else {
-            response.threads = await prisma.mainthread.findMany({
-                where: {
-                    college,
-                },
-                include: {
-                    user: {
-                        select: {
-                            email: true,
-                        },
-                    },
-                    subthreads: {
-                        orderBy: {
-                            createdAt: "asc",
-                        },
-                        select: {
-                            user: {
-                                select: {
-                                    email: true,
-                                },
-                            },
-                            content: true,
-                            createdAt: true,
-                        },
-                    },
-                },
-            });
-        }
+            },
+        });
         response.success = true;
         res.json(response);
     } catch (err) {
@@ -69,6 +58,71 @@ threadRouter.get("/:college", async (req, res) => {
     }
 });
 
+// 특정 대학 전체 메인스레드 수 반환
+threadRouter.get("/:college/totalThreads", async (req, res) => {
+    const college = req.params.college;
+    const response = { success: false, message: "" };
+
+    try {
+        response.totalThreads = await prisma.mainthread.count({
+            where: {
+                college,
+            },
+        });
+        reponse.success = true;
+        res.json(response);
+    } catch (err) {
+        console.log(err);
+        response.message = "서버 오류입니다. 잠시 후 다시 시도해 주세요";
+        res.json(response);
+    }
+});
+
+// 특정 대학 n번째 페이지 메인/서브스레드 반환
+threadRouter.get("/:college/:pageNo", async (req, res) => {
+    const college = req.params.college;
+    const pageNo = parseInt(req.params.pageNo);
+    const response = { success: false, message: "" };
+
+    try {
+        response.threads = await prisma.mainthread.findMany({
+            skip: 10 * (pageNo - 1),
+            take: 10,
+            where: {
+                college,
+            },
+            include: {
+                user: {
+                    select: {
+                        email: true,
+                    },
+                },
+                subthreads: {
+                    orderBy: {
+                        createdAt: "asc",
+                    },
+                    select: {
+                        user: {
+                            select: {
+                                email: true,
+                            },
+                        },
+                        content: true,
+                        createdAt: true,
+                    },
+                },
+            },
+        });
+        response.success = true;
+        res.json(response);
+    } catch (err) {
+        console.log(err);
+        response.message = "서버 오류입니다. 잠시 후 다시 시도해 주세요";
+        res.json(response);
+    }
+});
+
+// 메인 스레드 생성
 threadRouter.post("/main", async (req, res) => {
     const email = req.body.email;
     const college = req.body.college;
@@ -98,6 +152,7 @@ threadRouter.post("/main", async (req, res) => {
     }
 });
 
+// 서브 스레드 생성
 threadRouter.post("/sub", async (req, res) => {
     const email = req.body.email;
     const mainthreadId = req.body.mainthreadId;
