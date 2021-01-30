@@ -4,7 +4,7 @@ const express = require("express");
 const threadRouter = express.Router();
 
 // 전체 메인스레드 수 반환
-threadRouter.get("/all/totalThreads", async (req, res) => {
+threadRouter.get("/all/total", async (req, res) => {
     const response = { success: false, message: "" };
 
     try {
@@ -59,7 +59,7 @@ threadRouter.get("/all/page/:pageNo", async (req, res) => {
 });
 
 // 특정 대학 전체 메인스레드 수 반환
-threadRouter.get("/:college/totalThreads", async (req, res) => {
+threadRouter.get("/:college/total", async (req, res) => {
     const college = req.params.college;
     const response = { success: false, message: "" };
 
