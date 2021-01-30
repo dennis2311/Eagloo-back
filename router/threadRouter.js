@@ -9,6 +9,7 @@ threadRouter.get("/all/total", async (req, res) => {
 
     try {
         response.totalThreads = await prisma.mainthread.count();
+        console.log(response.totalThreads);
         response.success = true;
         res.json(response);
     } catch (err) {
@@ -43,12 +44,14 @@ threadRouter.get("/all/page/:pageNo", async (req, res) => {
                                 email: true,
                             },
                         },
+                        id: true,
                         content: true,
                         createdAt: true,
                     },
                 },
             },
         });
+        console.dir(response.threads);
         response.success = true;
         res.json(response);
     } catch (err) {
@@ -107,6 +110,7 @@ threadRouter.get("/:college/page/:pageNo", async (req, res) => {
                                 email: true,
                             },
                         },
+                        id: true,
                         content: true,
                         createdAt: true,
                     },
