@@ -19,7 +19,7 @@ threadRouter.get("/all/totalThreads", async (req, res) => {
 });
 
 // n번째 페이지 메인/서브스레드 반환
-threadRouter.get("/all/:pageNo", async (req, res) => {
+threadRouter.get("/all/page/:pageNo", async (req, res) => {
     const pageNo = parseInt(req.params.pageNo);
     const response = { success: false, message: "" };
 
@@ -79,7 +79,7 @@ threadRouter.get("/:college/totalThreads", async (req, res) => {
 });
 
 // 특정 대학 n번째 페이지 메인/서브스레드 반환
-threadRouter.get("/:college/:pageNo", async (req, res) => {
+threadRouter.get("/:college/page/:pageNo", async (req, res) => {
     const college = req.params.college;
     const pageNo = parseInt(req.params.pageNo);
     const response = { success: false, message: "" };
