@@ -9,7 +9,7 @@ threadRouter.get("/all/total", async (req, res) => {
 
     try {
         response.totalThreads = await prisma.mainthread.count();
-        reponse.success = true;
+        response.success = true;
         res.json(response);
     } catch (err) {
         console.log(err);
@@ -18,7 +18,7 @@ threadRouter.get("/all/total", async (req, res) => {
     }
 });
 
-// n번째 페이지 메인/서브스레드 반환
+// n번째 페이지 스레드 반환
 threadRouter.get("/all/page/:pageNo", async (req, res) => {
     const pageNo = parseInt(req.params.pageNo);
     const response = { success: false, message: "" };
@@ -69,7 +69,7 @@ threadRouter.get("/:college/total", async (req, res) => {
                 college,
             },
         });
-        reponse.success = true;
+        response.success = true;
         res.json(response);
     } catch (err) {
         console.log(err);
@@ -78,7 +78,7 @@ threadRouter.get("/:college/total", async (req, res) => {
     }
 });
 
-// 특정 대학 n번째 페이지 메인/서브스레드 반환
+// 특정 대학 n번째 페이지 스레드 반환
 threadRouter.get("/:college/page/:pageNo", async (req, res) => {
     const college = req.params.college;
     const pageNo = parseInt(req.params.pageNo);
