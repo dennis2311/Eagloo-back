@@ -135,7 +135,7 @@ threadRouter.post("/main", async (req, res) => {
     const response = { success: false, message: "" };
 
     try {
-        await prisma.mainthread.create({
+        const newMainthread = await prisma.mainthread.create({
             data: {
                 college,
                 subject,
@@ -147,6 +147,7 @@ threadRouter.post("/main", async (req, res) => {
                 },
             },
         });
+        response.newMainthread = newMainthread;
         response.success = true;
         res.json(response);
     } catch (err) {
@@ -164,7 +165,7 @@ threadRouter.post("/sub", async (req, res) => {
     const response = { success: false, message: "" };
 
     try {
-        await prisma.subthread.create({
+        const newSubthread = await prisma.subthread.create({
             data: {
                 user: {
                     connect: {
@@ -179,6 +180,7 @@ threadRouter.post("/sub", async (req, res) => {
                 content,
             },
         });
+        response.newSubthread = newSubthread;
         response.success = true;
         res.json(response);
     } catch (err) {
