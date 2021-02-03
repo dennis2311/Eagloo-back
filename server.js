@@ -36,6 +36,9 @@ const roomToUser = { 1: [], 2: [], 3: [], 4: [], 5: [] };
 
 io.on("connection", (socket) => {
     var message = "";
+
+    console.log(`소켓 연결됨 : ${socket.id}`);
+
     socket.on("join", (roomNo) => {
         if (!(0 < parseInt(roomNo) < 6)) {
             message = "잘못된 접근입니다";
@@ -76,6 +79,10 @@ io.on("connection", (socket) => {
                 io.to(user).emit("peer quit", socket.id);
             });
         }
+    });
+
+    socket.on("message send", (message) => {
+        socket.broadcast.emit("new message", message);
     });
 });
 
