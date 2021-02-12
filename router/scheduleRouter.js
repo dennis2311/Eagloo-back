@@ -21,7 +21,7 @@ scheduleRouter.get("/:email", async (req, res) => {
                     select: {
                         id: true,
                         content: true,
-                        progress: true,
+                        importance: true,
                     },
                 },
             },
@@ -39,12 +39,14 @@ scheduleRouter.get("/:email", async (req, res) => {
 scheduleRouter.post("/", async (req, res) => {
     const email = req.body.email;
     const content = req.body.content;
+    const importance = parseInt(req.body.importance);
     const response = { success: false, message: "" };
 
     try {
         const schedule = await prisma.schedule.create({
             data: {
                 content,
+                importance,
                 user: {
                     connect: {
                         email,
@@ -54,7 +56,7 @@ scheduleRouter.post("/", async (req, res) => {
             select: {
                 id: true,
                 content: true,
-                progress: true,
+                importance: true,
             },
         });
         response.success = true;
@@ -71,7 +73,8 @@ scheduleRouter.post("/", async (req, res) => {
 scheduleRouter.put("/", async (req, res) => {
     const scheduleId = req.body.scheduleId;
     const content = req.body.content;
-    const progress = req.body.progress;
+    const done = req.body.done;
+    const importance = parseInt(req.body.importance);
     const response = { success: false, message: "" };
 
     try {
@@ -81,7 +84,8 @@ scheduleRouter.put("/", async (req, res) => {
             },
             data: {
                 content,
-                progress,
+                done,
+                importance,
             },
         });
         response.success = true;
