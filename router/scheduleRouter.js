@@ -77,17 +77,32 @@ scheduleRouter.put("/", async (req, res) => {
     const importance = parseInt(req.body.importance);
     const response = { success: false, message: "" };
 
+    // TODO
+    // 예쁘지가 않음
     try {
-        await prisma.schedule.update({
-            where: {
-                id: scheduleId,
-            },
-            data: {
-                content,
-                done,
-                importance,
-            },
-        });
+        if (done) {
+            await prisma.schedule.update({
+                where: {
+                    id: scheduleId,
+                },
+                data: {
+                    content,
+                    done: true,
+                    importance,
+                },
+            });
+        } else {
+            await prisma.schedule.update({
+                where: {
+                    id: scheduleId,
+                },
+                data: {
+                    content,
+                    done: false,
+                    importance,
+                },
+            });
+        }
         response.success = true;
         res.json(response);
     } catch (err) {
