@@ -21,6 +21,7 @@ scheduleRouter.get("/:email", async (req, res) => {
                     select: {
                         id: true,
                         content: true,
+                        done: true,
                         importance: true,
                     },
                 },
@@ -56,6 +57,7 @@ scheduleRouter.post("/", async (req, res) => {
             select: {
                 id: true,
                 content: true,
+                done: true,
                 importance: true,
             },
         });
@@ -74,11 +76,11 @@ scheduleRouter.put("/", async (req, res) => {
     const scheduleId = req.body.scheduleId;
     const content = req.body.content;
     const done = req.body.done;
-    const importance = parseInt(req.body.importance);
+    // const importance = parseInt(req.body.importance);
     const response = { success: false, message: "" };
 
     // TODO
-    // 예쁘지가 않음
+    // 예쁘지 않음
     try {
         if (done) {
             await prisma.schedule.update({
@@ -88,7 +90,7 @@ scheduleRouter.put("/", async (req, res) => {
                 data: {
                     content,
                     done: true,
-                    importance,
+                    // importance,
                 },
             });
         } else {
@@ -99,7 +101,7 @@ scheduleRouter.put("/", async (req, res) => {
                 data: {
                     content,
                     done: false,
-                    importance,
+                    // importance,
                 },
             });
         }
