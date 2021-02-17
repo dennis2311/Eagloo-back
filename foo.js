@@ -144,7 +144,3 @@ async function threadNum(college) {
 // callAllThread_ex(1);
 // callThread("Music", 1);
 // threadNum("All");
-
-const boo = { 1: [], 2: [12, 12], 3: [0, 0, 0, 0] };
-
-console.log(boo[2].length);

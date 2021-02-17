@@ -47,49 +47,28 @@ io.on("connection", (user) => {
     console.log(`소켓 연결됨 : ${user.id}`);
 
     user.on("enter", (roomNo) => {
-        // if (roomNo > 6) {
-        //     message = "잘못된 접근입니다";
-        //     user.emit("rejected", message);
-        //     console.log(`${user.id}의 방 입장 거부됨01`);
-        // } else if (room.length >= 7) {
-        //     message = "방이 다 찼습니다. 다른 방을 이용해 주세요";
-        //     user.emit("rejected", message);
-        //     console.log(`${user.id}의 방 입장 거부됨02`);
-        // } else {
-
-        io.to(user.id).emit("accepted", room);
-        // userToRoom[user.id] = roomNo;
-        room.push(user.id);
-        console.log(`${user.id}이 ${roomNo}번 방에 입장함`);
-
-        // }
-
-        // if (!(0 < parseInt(roomNo) < 7)) {
-        //     message = "잘못된 접근입니다";
-        //     user.emit("rejected", message);
-        // } else if (roomToUser[parseInt(roomNo)].length) {
-        //     message = "방이 다 찼습니다. 다른 방을 이용해 주세요";
-        //     user.emit("rejected", message);
-        // } else {
-        //     user.emit("accepted", roomToUser[roomNo]);
-        //     roomToUser[roomNo].push(user.id);
-        //     userToRoom[user.id] = roomNo;
-        // }
+        if (room.length >= 4) {
+            io.to(user.id).emit("rejected", "방이 꽉 찼습니다");
+        } else {
+            io.to(user.id).emit("accepted", room);
+            room.push(user.id);
+            console.log(`${user.id}이 ${roomNo}번 방에 입장함`);
+        }
     });
 
     user.on("request peer cam", (payload) => {
-        // io.to(payload.peerId).emit("cam requested", {
-        //     signal: payload.signal,
-        //     callerId: payload.callerId,
-        // });
         console.log(`${user.id}가 ${payload.peerId}의 캠 요청함`);
+        io.to(payload.peerId).emit("cam requested", {
+            signal: payload.signal,
+            callerId: payload.callerId,
+        });
     });
 
     user.on("accept peer cam request", (payload) => {
-        // io.to(payload.callerId).emit("cam request accepted", {
-        //     signal: payload.signal,
-        //     id: user.id,
-        // });
+        io.to(payload.callerId).emit("cam request accepted", {
+            signal: payload.signal,
+            id: user.id,
+        });
         console.log(`${user.id}가 ${payload.callerId}의 캠 요청 수락함`);
     });
 
@@ -97,15 +76,9 @@ io.on("connection", (user) => {
         console.log(`${user.id} 방 나감`);
         let index = room.indexOf(user.id);
         room.splice(index, 1);
-        // let roomNo = userToRoom[user.id];
-        // if (roomNo) {
-        //     let index = roomToUser[roomNo].indexOf(user.id);
-        //     roomToUser[roomNo].splice(index, 1);
-        //     delete userToRoom[user.id];
-        //     roomToUser[roomNo].forEach((user) => {
-        //         io.to(user).emit("peer quit", user.id);
-        //     });
-        // }
+        room.forEach((otherUser) => {
+            io.to(otherUser).emit("peer quit", user.id);
+        });
     });
 
     user.on("message send", (message) => {
@@ -116,6 +89,9 @@ io.on("connection", (user) => {
         console.log(`${user.id} 소켓 연결 두절`);
         let index = room.indexOf(user.id);
         room.splice(index, 1);
+        room.forEach((otherUser) => {
+            io.to(otherUser).emit("peer quit", user.id);
+        });
     });
 });
 
