@@ -8,7 +8,13 @@ const http = require("http");
 const server = http.createServer(app);
 
 const socket = require("socket.io");
-const io = socket(server);
+const io = socket(server, {
+    cors: {
+        origin: "*",
+        allowedHeaders: ["eagloo-chatting", "eagloo-study-room"],
+        credentials: true,
+    },
+});
 
 const cors = require("cors");
 app.use(cors());
@@ -31,58 +37,85 @@ app.use("/api/schedule", scheduleRouter);
 app.use("/api/thread", threadRouter);
 app.use("/api/feedback", feedbackRouter);
 
-const userToRoom = {};
-const roomToUser = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+// const userToRoom = {};
+// const roomToUser = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+const room = [];
 
-io.on("connection", (socket) => {
+io.on("connection", (user) => {
     var message = "";
 
-    console.log(`소켓 연결됨 : ${socket.id}`);
+    console.log(`소켓 연결됨 : ${user.id}`);
 
-    socket.on("join", (roomNo) => {
-        if (!(0 < parseInt(roomNo) < 6)) {
-            message = "잘못된 접근입니다";
-            socket.emit("reject", message);
-        } else if (roomToUser[roomNo].length >= 6) {
-            message = "방이 다 찼습니다. 다른 방을 이용해 주세요";
-            socket.emit("reject", message);
-        } else {
-            socket.emit("accept", roomToUser[roomNo]);
-            roomToUser[roomNo].push(socket.id);
-            userToRoom[socket.id] = roomNo;
-        }
+    user.on("enter", (roomNo) => {
+        // if (roomNo > 6) {
+        //     message = "잘못된 접근입니다";
+        //     user.emit("rejected", message);
+        //     console.log(`${user.id}의 방 입장 거부됨01`);
+        // } else if (room.length >= 7) {
+        //     message = "방이 다 찼습니다. 다른 방을 이용해 주세요";
+        //     user.emit("rejected", message);
+        //     console.log(`${user.id}의 방 입장 거부됨02`);
+        // } else {
+
+        io.to(user.id).emit("accepted", room);
+        // userToRoom[user.id] = roomNo;
+        room.push(user.id);
+        console.log(`${user.id}이 ${roomNo}번 방에 입장함`);
+
+        // }
+
+        // if (!(0 < parseInt(roomNo) < 7)) {
+        //     message = "잘못된 접근입니다";
+        //     user.emit("rejected", message);
+        // } else if (roomToUser[parseInt(roomNo)].length) {
+        //     message = "방이 다 찼습니다. 다른 방을 이용해 주세요";
+        //     user.emit("rejected", message);
+        // } else {
+        //     user.emit("accepted", roomToUser[roomNo]);
+        //     roomToUser[roomNo].push(user.id);
+        //     userToRoom[user.id] = roomNo;
+        // }
     });
 
-    socket.on("request peer cam", (payload) => {
-        io.to(payload.peerId).emit("cam requested", {
-            signal: payload.signal,
-            callerId: payload.callerId,
-            index: payload.index,
-        });
+    user.on("request peer cam", (payload) => {
+        // io.to(payload.peerId).emit("cam requested", {
+        //     signal: payload.signal,
+        //     callerId: payload.callerId,
+        // });
+        console.log(`${user.id}가 ${payload.peerId}의 캠 요청함`);
     });
 
-    socket.on("accept peer cam request", (payload) => {
-        io.to(payload.callerId).emit("cam request accepted", {
-            signal: payload.signal,
-            id: socket.id,
-            index: payload.index,
-        });
+    user.on("accept peer cam request", (payload) => {
+        // io.to(payload.callerId).emit("cam request accepted", {
+        //     signal: payload.signal,
+        //     id: user.id,
+        // });
+        console.log(`${user.id}가 ${payload.callerId}의 캠 요청 수락함`);
     });
 
-    socket.on("disconnect", () => {
-        let roomNo = userToRoom[socket.id];
-        if (roomNo) {
-            let index = roomToUser[roomNo].indexOf(socket.id);
-            roomToUser[roomNo].splice(index, 1);
-            delete userToRoom[socket.id];
-            roomToUser[roomNo].forEach((user) => {
-                io.to(user).emit("peer quit", socket.id);
-            });
-        }
+    user.on("quit", () => {
+        console.log(`${user.id} 방 나감`);
+        let index = room.indexOf(user.id);
+        room.splice(index, 1);
+        // let roomNo = userToRoom[user.id];
+        // if (roomNo) {
+        //     let index = roomToUser[roomNo].indexOf(user.id);
+        //     roomToUser[roomNo].splice(index, 1);
+        //     delete userToRoom[user.id];
+        //     roomToUser[roomNo].forEach((user) => {
+        //         io.to(user).emit("peer quit", user.id);
+        //     });
+        // }
     });
 
-    socket.on("message send", (message) => {
-        socket.broadcast.emit("new message", message);
+    user.on("message send", (message) => {
+        user.broadcast.emit("new message", message);
+    });
+
+    user.on("disconnect", () => {
+        console.log(`${user.id} 소켓 연결 두절`);
+        let index = room.indexOf(user.id);
+        room.splice(index, 1);
     });
 });
 
