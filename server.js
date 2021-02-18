@@ -47,7 +47,7 @@ io.on("connection", (user) => {
     console.log(`소켓 연결됨 : ${user.id}`);
 
     user.on("enter", (roomNo) => {
-        if (room.length >= 4) {
+        if (room.length >= 5) {
             io.to(user.id).emit("rejected", "방이 꽉 찼습니다");
         } else {
             io.to(user.id).emit("accepted", room);
@@ -59,17 +59,18 @@ io.on("connection", (user) => {
     user.on("request peer cam", (payload) => {
         console.log(`${user.id}가 ${payload.peerId}의 캠 요청함`);
         io.to(payload.peerId).emit("cam requested", {
-            signal: payload.signal,
+            index: payload.index,
             callerId: payload.callerId,
+            signal: payload.signal,
         });
     });
 
     user.on("accept peer cam request", (payload) => {
-        io.to(payload.callerId).emit("cam request accepted", {
-            signal: payload.signal,
-            id: user.id,
-        });
         console.log(`${user.id}가 ${payload.callerId}의 캠 요청 수락함`);
+        io.to(payload.callerId).emit("cam request accepted", {
+            index: payload.index,
+            signal: payload.signal,
+        });
     });
 
     user.on("quit", () => {
