@@ -37,32 +37,47 @@ app.use("/api/schedule", scheduleRouter);
 app.use("/api/thread", threadRouter);
 app.use("/api/feedback", feedbackRouter);
 
-// const userToRoom = {};
-// const roomToUser = { 1: [], 2: [], 3: [], 4: [], 5: [] };
-const room = [];
+const userToRoom = {};
 
 io.on("connection", (user) => {
-    var message = "";
-
     console.log(`소켓 연결됨 : ${user.id}`);
 
-    user.on("enter", (roomNo) => {
-        if (room.length >= 5) {
-            io.to(user.id).emit("rejected", "방이 꽉 찼습니다");
+    user.on("enter", (payload) => {
+        if (!0 < parseInt(payload.roomNo < 7)) {
+            io.to(user.id).emit("rejected", "방이 존재하지 않습니다");
         } else {
-            io.to(user.id).emit("accepted", room);
-            room.push(user.id);
-            console.log(`${user.id}이 ${roomNo}번 방에 입장함`);
+            const roomName = `room${payload.roomNo}`;
+            user.join(roomName);
+            const roomUsers = Object.keys(
+                io.sockets.adapter.rooms[roomName].sockets
+            );
+            if (roomUsers.length >= 6) {
+                user.leave(roomName);
+                io.to(user.id).emit("rejected", "방이 꽉 찼습니다");
+            } else {
+                userToRoom[user.id] = roomName;
+                io.to(user.id).emit("accepted", roomUsers);
+                console.log(
+                    `${user.id}(${payload.email})이 ${roomName}에 입장함. 현재 방 인원 : ${roomUsers.length}`
+                );
+            }
         }
     });
 
+    // TODO
+    // 캠 요청 중 상대가 나가는 경우 처리
     user.on("request peer cam", (payload) => {
-        console.log(`${user.id}가 ${payload.peerId}의 캠 요청함`);
-        io.to(payload.peerId).emit("cam requested", {
-            index: payload.index,
-            callerId: payload.callerId,
-            signal: payload.signal,
-        });
+        if (userToRoom[payload.peerId]) {
+            console.log(`${user.id}가 ${payload.peerId}의 캠 요청함`);
+            io.to(payload.peerId).emit("cam requested", {
+                index: payload.index,
+                callerId: payload.callerId,
+                signal: payload.signal,
+            });
+        } else {
+            console.log(`${user.id}의 캠 요청 중 ${payload.peerId} 퇴장함`);
+            io.to(user.id).emit("peer dead", { index: payload.index });
+        }
     });
 
     user.on("accept peer cam request", (payload) => {
@@ -73,13 +88,21 @@ io.on("connection", (user) => {
         });
     });
 
-    user.on("quit", () => {
-        console.log(`${user.id} 방 나감`);
-        let index = room.indexOf(user.id);
-        room.splice(index, 1);
-        room.forEach((otherUser) => {
-            io.to(otherUser).emit("peer quit", user.id);
-        });
+    // TODO
+    // 캠 수락 이후 상대가 나가는 경우 처리
+    user.on("peer still alive", (payload) => {
+        if (!userToRoom[payload.peerId]) {
+            io.to(user.id).emit("peer dead", { index: payload.index });
+        }
+    });
+
+    user.on("quit", (email) => {
+        console.log(`${user.id}(${email})가 ${userToRoom[user.id]} 나감`);
+        user.leave(userToRoom[user.id]);
+        io.sockets.in(userToRoom[user.id]).emit("peer quit", user.id);
+        delete userToRoom[user.id];
+        console.log("방 입장 현황 : ");
+        console.dir(userToRoom);
     });
 
     user.on("message send", (message) => {
@@ -87,12 +110,11 @@ io.on("connection", (user) => {
     });
 
     user.on("disconnect", () => {
-        console.log(`${user.id} 소켓 연결 두절`);
-        let index = room.indexOf(user.id);
-        room.splice(index, 1);
-        room.forEach((otherUser) => {
-            io.to(otherUser).emit("peer quit", user.id);
-        });
+        console.log(`소켓 연결 두절 : ${user.id}`);
+        io.sockets.in(userToRoom[user.id]).emit("peer quit", user.id);
+        delete userToRoom[user.id];
+        console.log("방 입장 현황 : ");
+        console.dir(userToRoom);
     });
 });
 

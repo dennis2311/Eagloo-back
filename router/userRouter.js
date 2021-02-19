@@ -59,7 +59,9 @@ userRouter.post("/", async (req, res) => {
                     where: { email },
                     data: { verificationSecret: secret },
                 });
-                sendMail(`${email}@yonsei.ac.kr`, secret).catch((err) => {
+                // TODO
+                // sendMail 발송 오류 처리
+                sendMail(email, secret).catch((err) => {
                     console.log(err);
                     response.message = "메일 발송 중 오류가 발생했습니다";
                     res.json(response);
@@ -74,7 +76,9 @@ userRouter.post("/", async (req, res) => {
                     verificationSecret: secret,
                 },
             });
-            sendMail(`${email}@yonsei.ac.kr`, secret).catch((err) => {
+            // TODO
+            // sendMail 발송 오류 처리
+            sendMail(email, secret).catch((err) => {
                 console.log(err);
                 response.message = "메일 발송 중 오류가 발생했습니다";
                 res.json(response);
