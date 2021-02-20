@@ -49,9 +49,11 @@ async function sendMail(to, secret) {
     try {
         await googleTransport.sendMail(mailOptions);
         googleTransport.close();
+        return true;
     } catch (error) {
         console.log(`${to}@yonsei.ac.kr 메일 전송에 실패하였습니다`);
         console.log(error);
+        return false;
     }
 }
 

@@ -22,4 +22,8 @@ const sendMail = require("./util/sendMail");
 //     }
 // }
 
-sendMail("dennis2311", "지금도 될까?");
+if (await sendMail("dennis2311", "await 실험")) {
+    console.log("전송 완료");
+} else {
+    console.log("전송 실패");
+}

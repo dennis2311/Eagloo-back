@@ -61,13 +61,12 @@ userRouter.post("/", async (req, res) => {
                 });
                 // TODO
                 // sendMail 발송 오류 처리
-                sendMail(email, secret).catch((err) => {
-                    console.log(err);
+                if (sendMail(email, secret)) {
+                    response.success = true;
+                    response.message = `인증 메일이 ${email}@yonsei.ac.kr 로 발송되었습니다`;
+                } else {
                     response.message = "메일 발송 중 오류가 발생했습니다";
-                    res.json(response);
-                });
-                response.success = true;
-                response.message = `인증 메일이 ${email}@yonsei.ac.kr 로 발송되었습니다`;
+                }
             }
         } else {
             await prisma.user.create({
@@ -78,13 +77,12 @@ userRouter.post("/", async (req, res) => {
             });
             // TODO
             // sendMail 발송 오류 처리
-            sendMail(email, secret).catch((err) => {
-                console.log(err);
+            if (sendMail(email, secret)) {
+                response.success = true;
+                response.message = `인증 메일이 ${email}@yonsei.ac.kr 로 발송되었습니다`;
+            } else {
                 response.message = "메일 발송 중 오류가 발생했습니다";
-                res.json(response);
-            });
-            response.success = true;
-            response.message = `인증 메일이 ${email}@yonsei.ac.kr 로 발송되었습니다`;
+            }
         }
         res.json(response);
     } catch (err) {

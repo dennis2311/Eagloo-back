@@ -43,7 +43,7 @@ io.on("connection", (user) => {
     console.log(`소켓 연결됨 : ${user.id}`);
 
     user.on("enter", (payload) => {
-        if (!0 < parseInt(payload.roomNo < 7)) {
+        if (!0 < parseInt(payload.roomNo) < 7) {
             io.to(user.id).emit("rejected", "방이 존재하지 않습니다");
         } else {
             const roomName = `room${payload.roomNo}`;
