@@ -2,4 +2,4 @@
 // const prisma = new PrismaClient();
 const sendMail = require("./util/sendMail");
 
-console.log("ignore me");
+console.log(!(0 < -2 < 7));
