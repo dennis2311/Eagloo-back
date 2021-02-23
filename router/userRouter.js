@@ -25,13 +25,13 @@ userRouter.get("/:email/:password", async (req, res) => {
                             "신고로 인하여 정지된 계정입니다. 관리자에게 문의하세요";
                     }
                 } else {
-                    response.message = "아직 계정 인증이 완료되지 않았어요 :/";
+                    response.message = "아직 계정 인증이 완료되지 않았어요";
                 }
             } else {
-                response.message = "비밀번호가 일치하지 않아요 :/";
+                response.message = "비밀번호가 일치하지 않아요";
             }
         } else {
-            response.message = "일치하는 메일 주소가 없어요 :/";
+            response.message = "일치하는 메일 주소가 없어요";
         }
         res.json(response);
     } catch (err) {
@@ -114,7 +114,7 @@ userRouter.put("/secret", async (req, res) => {
             }
         } else {
             response.message =
-                "임시 계정 생성이 완료되지 않았습니다. 잠시 후 다시 시도해주세요\n증상이 계속되는 경우, 관리자에게 문의해주세요";
+                "임시 계정 생성이 완료되지 않았습니다. 잠시 후 다시 시도해주세요. \n증상이 계속되는 경우, 관리자에게 문의해주세요";
         }
         res.json(response);
     } catch (err) {

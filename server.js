@@ -43,7 +43,7 @@ io.on("connection", (user) => {
     console.log(`소켓 연결됨 : ${user.id}`);
 
     user.on("enter", (payload) => {
-        if (!0 < parseInt(payload.roomNo) < 7) {
+        if (!(0 < parseInt(payload.roomNo) < 7)) {
             io.to(user.id).emit("rejected", "방이 존재하지 않습니다");
         } else {
             const roomName = `room${payload.roomNo}`;
@@ -53,7 +53,10 @@ io.on("connection", (user) => {
             );
             if (roomUsers.length >= 6) {
                 user.leave(roomName);
-                io.to(user.id).emit("rejected", "방이 꽉 찼습니다");
+                io.to(user.id).emit(
+                    "rejected",
+                    "방이 꽉 찼습니다. 다른 방을 이용해 주세요"
+                );
             } else {
                 userToRoom[user.id] = roomName;
                 io.to(user.id).emit("accepted", roomUsers);
@@ -119,5 +122,5 @@ io.on("connection", (user) => {
 });
 
 server.listen(process.env.PORT || 8000, () =>
-    console.log("server is running on port 8000")
+    console.log(`server is running on ${process.env.PORT || `port 8000`}`)
 );
